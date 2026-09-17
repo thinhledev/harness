@@ -1,0 +1,14 @@
+{
+  "name": "thinhledev",
+  "description": "Harness: a portable five-stage process for AI coding agents.",
+  "owner": {
+    "name": "Thinh Le"
+  },
+  "plugins": [
+    {
+      "name": "harness",
+      "source": "./",
+      "description": "Five-stage process for coding agents: UI design, technical design, write, review, verify."
+    }
+  ]
+}

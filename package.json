@@ -1,0 +1,39 @@
+{
+  "name": "@thinhledev/harness",
+  "version": "0.1.0",
+  "description": "A portable process for AI coding agents: five stages, five skills, five agents. Install it into any project and the agents already know how the work is done.",
+  "type": "module",
+  "bin": {
+    "harness": "bin/harness.js"
+  },
+  "files": [
+    "bin",
+    "src",
+    "skills",
+    "agents"
+  ],
+  "scripts": {
+    "test": "node --test test/*.test.js && node scripts/check-specifics.js",
+    "check:specifics": "node scripts/check-specifics.js"
+  },
+  "engines": {
+    "node": ">=18.17"
+  },
+  "keywords": [
+    "agents",
+    "claude-code",
+    "codex",
+    "agents-md",
+    "skills",
+    "workflow"
+  ],
+  "author": "Thinh Le",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/thinhledev/harness.git"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}
