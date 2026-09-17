@@ -4,20 +4,24 @@ import { FACTS, isOpen, normalizeValue } from './facts.js';
 import { scanProject } from './scan/index.js';
 import { DEFAULT_GUARDRAILS } from './guardrails.js';
 import { renderSection, parseSection, upsertSection, bridgeClaude } from './context.js';
-import { planClaudeFiles, isOwned } from './emit/claude.js';
+import { isOwned } from './emit/source.js';
+import { TARGETS, CODEX_DOC_LIMIT, detectTargets } from './emit/index.js';
 
 /**
  * Sets a project up for the Harness loop.
  * io: { print(line), ask(question) → Promise<string> }; ask is only used when interactive.
- * Returns { facts, guardrails, results } where results lists every file and what happened to it.
+ * targets: agent ids to emit for (see emit/index.js); detected from the project when omitted.
+ * Returns { facts, guardrails, targets, results } where results lists every file and what happened to it.
  */
-export async function init({ root, pkgRoot, version, interactive, force = false, dryRun = false, io }) {
+export async function init({ root, pkgRoot, version, interactive, targets, force = false, dryRun = false, io }) {
   const agentsText = readIfExists(path.join(root, 'AGENTS.md'));
   const previous = agentsText ? parseSection(agentsText) : null;
   const facts = mergeFacts(previous?.facts ?? {}, scanProject(root));
   let guardrails = previous?.guardrails ?? [];
+  const detected = targets ? { targets, reason: 'chosen with --agent' } : detectTargets(root);
 
   io.print(`harness init — ${root}`);
+  io.print(`Agents: ${detected.targets.map((id) => TARGETS[id].label).join(', ')} (${detected.reason})`);
   io.print('');
   io.print(previous ? 'Recorded earlier, or worked out from your project\'s own files:' : 'Worked out from your project\'s own files:');
   printFacts(io, facts);
@@ -35,11 +39,12 @@ export async function init({ root, pkgRoot, version, interactive, force = false,
   }
 
   const section = renderSection({ facts, guardrails, version });
-  const planned = [
-    { dest: 'AGENTS.md', content: upsertSection(agentsText, section), owned: true },
-    { dest: 'CLAUDE.md', content: bridgeClaude(root, readIfExists(path.join(root, 'CLAUDE.md'))), owned: true },
-    ...planClaudeFiles(pkgRoot, version),
-  ];
+  const agentsContent = upsertSection(agentsText, section);
+  const planned = [{ dest: 'AGENTS.md', content: agentsContent, owned: true }];
+  if (detected.targets.includes('claude')) {
+    planned.push({ dest: 'CLAUDE.md', content: bridgeClaude(root, readIfExists(path.join(root, 'CLAUDE.md'))), owned: true });
+  }
+  for (const id of detected.targets) planned.push(...TARGETS[id].plan(pkgRoot, version));
 
   const results = planned.map((file) => writePlanned(root, file, { force, dryRun }));
   io.print('');
@@ -50,11 +55,16 @@ export async function init({ root, pkgRoot, version, interactive, force = false,
     io.print('');
     io.print(`${conflicts.length} file(s) already exist and were not written by harness; left untouched. Rerun with --force to replace them.`);
   }
+  const sectionEnd = Buffer.byteLength(agentsContent.slice(0, agentsContent.indexOf(section) + section.length));
+  if (detected.targets.includes('codex') && sectionEnd > CODEX_DOC_LIMIT) {
+    io.print('');
+    io.print(`AGENTS.md is ${Buffer.byteLength(agentsContent)} bytes and the Harness section ends at byte ${sectionEnd}. Codex reads only the first ${CODEX_DOC_LIMIT} bytes by default, so it will miss part of the section: move the section up or raise project_doc_max_bytes.`);
+  }
   if (!dryRun) {
     io.print('');
     io.print('Facts that read "unknown", "not yet established" or "none" are resolved by stage 2 when work first needs them.');
   }
-  return { facts, guardrails, results };
+  return { facts, guardrails, targets: detected.targets, results };
 }
 
 /** Recorded facts win over the scan; open ones are refilled. Differences are noted. */

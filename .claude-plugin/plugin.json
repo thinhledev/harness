@@ -1,7 +1,7 @@
 {
   "name": "harness",
   "version": "0.1.0",
-  "description": "A portable process for AI coding agents: UI design, technical design, write, review, verify. Five stage skills and five role agents; run `npx @thinhledev/harness init` in a project to record its facts and guardrails.",
+  "description": "A portable process for AI coding agents: UI design, technical design, write, review, verify. Five stage skills and five role agents; run `npx @thinhledev/harness init` in a project to record its facts and guardrails (also sets the project up for Codex).",
   "author": { "name": "Thinh Le" },
   "homepage": "https://github.com/thinhledev/harness",
   "repository": "https://github.com/thinhledev/harness",

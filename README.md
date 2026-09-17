@@ -36,14 +36,17 @@ npx @thinhledev/harness init
 Correct any fact in the confirmation pass, then it writes:
 
 - `AGENTS.md`: a Harness section between `<!-- harness:begin -->` markers (loop, facts, guardrails). The rest of the file is left alone.
-- `CLAUDE.md`: a one-line `@AGENTS.md` bridge.
-- `.claude/skills/harness-*/SKILL.md` and `.claude/agents/*.md`.
+- **Claude Code:** a one-line `@AGENTS.md` bridge in `CLAUDE.md`, plus `.claude/skills/harness-*/SKILL.md` and `.claude/agents/*.md`.
+- **Codex:** `.agents/skills/harness-*/SKILL.md` and `.codex/agents/*.toml`.
+
+It writes for the agent tools the project already uses (it looks for `.claude/` and `CLAUDE.md`, or `.codex/` and `.agents/`). If it finds neither or both, it writes for both; `--agent claude|codex|all` overrides this. What carries over to Codex, and what doesn't, is in the [capability matrix](docs/capability-matrix.md).
 
 Rerunning keeps recorded facts and guardrails, fills in facts that are still open, and flags any recorded fact the scan now reads differently. It never overwrites an agent or skill file it didn't write, unless you pass `--force`.
 
 ```
 Options:
   --dir <path>   project to set up (default: current directory)
+  --agent <id>   claude, codex or all (default: detected from the project)
   -y, --yes      accept what was worked out and ask nothing
   --force        replace agent and skill files that harness did not write
   --dry-run      show what would be written; change nothing
@@ -58,9 +61,16 @@ Options:
 
 The plugin ships the skills and agents. Run `init` once per project so the agents have facts and guardrails to read.
 
-## Status
+## Install for Codex
 
-v0.1, in progress. Done: M1 (five skills and five agents) and M2 (`harness init`). Next is M3, running it on a second project of a different type. After that, M4: the Codex emitter and capability matrix. Codex already reads `AGENTS.md`, so the loop and facts reach it today; the skills and agents are Claude-only for now.
+There is no Codex plugin yet. Codex plugins can't bundle custom agents, so `init` is the complete install:
+
+```bash
+npx @thinhledev/harness init --agent codex
+```
+
+This writes the Harness section to `AGENTS.md`, the skills to `.agents/skills/`, and the agents to `.codex/agents/`. Without `--agent`, `init` sets up Codex on its own when the project already has `.codex/` or `.agents/`.
+
 
 ## Development
 

@@ -9,7 +9,8 @@ Harness is a process for coding agents, shipped as instructions. This repository
 - `src/`: the `harness init` CLI. Zero runtime dependencies; Node 18.17+.
   - `scan/`: read-only inference of project facts from documents, manifests and pipeline files.
   - `context.js`: the Harness section of a project's `AGENTS.md`, and the `CLAUDE.md` bridge.
-  - `emit/claude.js`: copies skills and agents into `.claude/`, stamped as generated.
+  - `emit/`: one emitter per agent tool, all built on `source.js`. `claude.js` writes `.claude/`; `codex.js` writes `.agents/skills/` and `.codex/agents/*.toml`. `index.js` detects which tools a project uses.
+- `docs/capability-matrix.md`: what each agent tool supports and what is lost. Update it, and its date, when an emitter or either tool changes.
 - `.claude-plugin/`: Claude Code plugin and marketplace manifests.
 
 ## Rules

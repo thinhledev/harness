@@ -11,17 +11,24 @@ const run = (root, options = {}, answers = []) => {
   return init({ root, pkgRoot, version: '0.1.0', interactive: false, io, ...options }).then((r) => ({ ...r, io }));
 };
 
-test('writes AGENTS.md, the CLAUDE.md bridge, five skills and five agents', async () => {
+test('with no agent configuration, writes for both Claude Code and Codex', async () => {
   const root = makeProject({ 'package.json': { scripts: { test: 'node --test' } } });
-  const { results } = await run(root);
+  const { results, targets, io } = await run(root);
 
+  assert.deepEqual(targets, ['claude', 'codex']);
+  assert.equal(io.lines[1], 'Agents: Claude Code, Codex (no agent configuration found, so both)');
   const written = results.filter((r) => r.status === 'created').map((r) => r.dest).sort();
   assert.deepEqual(written, [
+    '.agents/skills/harness-review/SKILL.md', '.agents/skills/harness-tech-design/SKILL.md',
+    '.agents/skills/harness-ui-design/SKILL.md', '.agents/skills/harness-verify/SKILL.md',
+    '.agents/skills/harness-write/SKILL.md',
     '.claude/agents/architect.md', '.claude/agents/builder.md', '.claude/agents/designer.md',
     '.claude/agents/reviewer.md', '.claude/agents/verifier.md',
     '.claude/skills/harness-review/SKILL.md', '.claude/skills/harness-tech-design/SKILL.md',
     '.claude/skills/harness-ui-design/SKILL.md', '.claude/skills/harness-verify/SKILL.md',
     '.claude/skills/harness-write/SKILL.md',
+    '.codex/agents/architect.toml', '.codex/agents/builder.toml', '.codex/agents/designer.toml',
+    '.codex/agents/reviewer.toml', '.codex/agents/verifier.toml',
     'AGENTS.md', 'CLAUDE.md',
   ]);
   assert.equal(read(root, 'CLAUDE.md'), '@AGENTS.md\n');
@@ -102,4 +109,38 @@ test('mergeFacts: not applicable is a decision, not an open fact', () => {
   );
   assert.equal(merged.e2e.value, 'not applicable');
   assert.match(merged.e2e.note, /scan now finds y/);
+});
+
+test('a project that already uses one agent gets only that one', async () => {
+  const codexOnly = makeProject({ '.codex/config.toml': '' });
+  const codex = await run(codexOnly);
+  assert.deepEqual(codex.targets, ['codex']);
+  assert.ok(!fs.existsSync(path.join(codexOnly, 'CLAUDE.md')), 'no Claude bridge for a Codex-only project');
+  assert.ok(!fs.existsSync(path.join(codexOnly, '.claude')));
+  assert.ok(fs.existsSync(path.join(codexOnly, '.codex/agents/verifier.toml')));
+
+  const claudeOnly = makeProject({ 'CLAUDE.md': '# notes\n' });
+  const claude = await run(claudeOnly);
+  assert.deepEqual(claude.targets, ['claude']);
+  assert.equal(claude.io.lines[1], 'Agents: Claude Code (found CLAUDE.md)');
+  assert.ok(!fs.existsSync(path.join(claudeOnly, '.agents')));
+
+  const both = makeProject({ '.claude/': '', '.agents/': '' });
+  assert.deepEqual((await run(both)).targets, ['claude', 'codex']);
+});
+
+test('an explicit target list overrides detection', async () => {
+  const root = makeProject({ 'CLAUDE.md': '# notes\n' });
+  const { targets, results } = await run(root, { targets: ['codex'] });
+  assert.deepEqual(targets, ['codex']);
+  assert.ok(!results.some((r) => r.dest === 'CLAUDE.md'));
+});
+
+test('warns when the Harness section falls past what Codex reads', async () => {
+  const root = makeProject({ 'AGENTS.md': `# Big\n\n${'x'.repeat(40 * 1024)}\n` });
+  const codex = await run(root, { targets: ['codex'] });
+  assert.ok(codex.io.lines.some((l) => l.includes('Codex reads only the first 32768 bytes')));
+
+  const small = await run(makeProject({}), { targets: ['codex'] });
+  assert.ok(!small.io.lines.some((l) => l.includes('Codex reads only')));
 });

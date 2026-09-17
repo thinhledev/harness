@@ -38,6 +38,8 @@ export function renderSection({ facts, guardrails, version }) {
     '| 4 | Review | `harness-review` | `reviewer` |',
     '| 5 | Verify — per slice as it lands, and at the end | `harness-verify` | `verifier` |',
     '',
+    'Claude Code picks the skills and agents up by their descriptions. Codex does the same for skills (or mention one as `$harness-verify`); spawn an agent by naming it, for example "spawn the verifier".',
+    '',
     '- **Gates stop work.** A stage does not start until the previous stage\'s gate is met.',
     '- **Size gate.** Work is small when it stays in one area, changes no contract (interface, data shape, stored state, flags, public surface), adds no dependency, and changes nothing visible beyond wording. Small work skips stages 1 and 2; review and verify always run.',
     '- **Skipped stages are stated**, with the reason, in the work record.',
