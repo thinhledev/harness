@@ -69,6 +69,12 @@ Options:
 
 The plugin ships the skills and agents. Run `init` once per project so the agents have facts and guardrails to read.
 
+## Install from Agensi
+
+[Get Harness on Agensi](https://www.agensi.io/r/THINHLE?to=/skills/harness-design-build-review-verify), the marketplace for agent skills. It's free with an Agensi account. Run `init` once per project afterwards, as above.
+
+<sub>This is my referral link. If you create an Agensi account through it, I earn a commission on skills you buy there in your first 6 months. It costs you nothing extra.</sub>
+
 ## Install for Codex
 
 There is no Codex plugin yet. Codex plugins can't bundle custom agents, so `init` is the complete install:
