@@ -1,3 +1,5 @@
+<img src="assets/logo.png" alt="" width="96" height="96">
+
 # Harness
 
 A portable process for AI coding agents. Install it into a project and its agents already know how the work gets done: design before building, settle contracts before code, review the diff, and actually run the checks.
@@ -17,6 +19,12 @@ A portable process for AI coding agents. Install it into a project and its agent
 If verify isn't green, only the failing slices go back to Write, at most twice. Small work (one area, no contract change) skips stages 1 and 2 and says so.
 
 Verify is the stage that pays for itself. **A seam is never verified from one side**: the producer and the consumer are opened in the same pass, because two pieces can each pass their own tests and still disagree where they meet.
+
+![The five stages of the Harness loop and the gate each one must pass](assets/screenshots/01-the-loop.png)
+
+![Verify compares the producer and the consumer of a seam field by field](assets/screenshots/02-seam-verified-from-both-sides.png)
+
+![An example run from the prompt to a green verdict](assets/screenshots/03-example-run.png)
 
 ## Install into a project
 

@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512" role="img" aria-label="Harness">
+  <rect width="512" height="512" rx="112" fill="#1e2a5a"/>
+  <g transform="translate(0 40)"><path d="M92 220H420" stroke="#4a5ba3" stroke-width="16" stroke-linecap="round"/>
+  <path d="M420 262 C 420 350, 248 350, 248 272" fill="none" stroke="#8ea0ff" stroke-width="14" stroke-linecap="round" stroke-dasharray="2 26"/>
+  <path d="M232 290l16-24 16 24" fill="none" stroke="#8ea0ff" stroke-width="14" stroke-linecap="round" stroke-linejoin="round"/>
+  <g fill="#e9edff">
+    <circle cx="92" cy="220" r="26"/>
+    <circle cx="170" cy="220" r="26"/>
+    <circle cx="248" cy="220" r="26"/>
+    <circle cx="326" cy="220" r="26"/>
+  </g>
+  <circle cx="414" cy="220" r="42" fill="#8ee6b8"/>
+  <path d="M394 220l14 15 28-30" fill="none" stroke="#1e2a5a" stroke-width="13" stroke-linecap="round" stroke-linejoin="round"/>
+</g></svg>
